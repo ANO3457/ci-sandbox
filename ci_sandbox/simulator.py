@@ -224,6 +224,8 @@ class CISimulator:
             return self.event
         if value == "github.ref_name":
             return self.branch
+        if value == "github.head_ref":
+            return self.branch
         if value.startswith("env.") and len(value) > 4:
             return self.workflow.env.get(value[4:], "")
         if value.startswith("secrets.") and len(value) > 8:

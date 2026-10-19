@@ -188,6 +188,13 @@ class TestExpressionEvaluation:
         assert sim._eval_expression("github.ref_name == 'main'") is True
         assert sim._eval_expression("github.ref_name == 'dev'") is False
 
+    def test_github_head_ref(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, branch="feature-x")
+        assert sim._eval_expression("github.head_ref == 'feature-x'") is True
+        assert sim._eval_expression("github.head_ref == 'main'") is False
+
+
     def test_secrets_check(self):
         wf = Workflow(name="test")
         sim = CISimulator(wf, secrets={"API_KEY": "123"})
