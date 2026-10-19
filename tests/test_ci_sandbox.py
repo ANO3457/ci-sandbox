@@ -188,6 +188,69 @@ class TestExpressionEvaluation:
         assert sim._eval_expression("github.ref_name == 'main'") is True
         assert sim._eval_expression("github.ref_name == 'dev'") is False
 
+    def test_compound_and(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, event="push", branch="main")
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+            )
+            is True
+        )
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'push' && github.ref == 'refs/heads/dev'"
+            )
+            is False
+        )
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'pull_request' && github.ref == 'refs/heads/main'"
+            )
+            is False
+        )
+
+    def test_compound_or(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, event="push", branch="main")
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'push' || github.event_name == 'release'"
+            )
+            is True
+        )
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'pull_request' || github.event_name == 'push'"
+            )
+            is True
+        )
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'pull_request' || github.event_name == 'release'"
+            )
+            is False
+        )
+
+    def test_compound_precedence(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, event="push", branch="dev")
+        # true || (false && false) -> True
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'push' || github.ref_name == 'main' && github.event_name == 'release'"
+            )
+            is True
+        )
+        # (false && false) || false -> False
+        assert (
+            sim._eval_expression(
+                "github.event_name == 'release' && github.ref_name == 'main' || github.ref_name == 'prod'"
+            )
+            is False
+        )
+
+
     def test_secrets_check(self):
         wf = Workflow(name="test")
         sim = CISimulator(wf, secrets={"API_KEY": "123"})

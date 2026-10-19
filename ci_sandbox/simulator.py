@@ -142,6 +142,12 @@ class CISimulator:
         if expr.startswith("${{") and expr.endswith("}}"):
             expr = expr[3:-2].strip()
 
+        if "||" in expr:
+            return any(self._eval_expression(part) for part in expr.split("||"))
+
+        if "&&" in expr:
+            return all(self._eval_expression(part) for part in expr.split("&&"))
+
         if expr == "always()":
             return True
         if expr == "failure()":
