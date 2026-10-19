@@ -194,6 +194,22 @@ class TestExpressionEvaluation:
         assert sim._eval_expression("secrets.API_KEY") is True
         assert sim._eval_expression("secrets.MISSING") is False
 
+    def test_inputs_check(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, inputs={"deploy": "true", "dry_run": "false"})
+        assert sim._eval_expression("inputs.deploy") is True
+        assert sim._eval_expression("inputs.dry_run") is False
+        assert sim._eval_expression("inputs.missing") is False
+
+    def test_inputs_equality(self):
+        wf = Workflow(name="test")
+        sim = CISimulator(wf, inputs={"env": "prod", "deploy": "true"})
+        assert sim._eval_expression("inputs.env == 'prod'") is True
+        assert sim._eval_expression("inputs.env == 'staging'") is False
+        assert sim._eval_expression("inputs.deploy == 'true'") is True
+        assert sim._eval_expression("inputs.missing == ''") is True
+
+
     def test_dollar_curly(self):
         wf = Workflow(name="test")
         sim = CISimulator(wf)

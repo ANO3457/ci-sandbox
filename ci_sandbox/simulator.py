@@ -209,6 +209,11 @@ class CISimulator:
         if m:
             return m.group(1) in self.secrets
 
+        m = re.match(r"inputs\.(\w+)", expr)
+        if m:
+            val = self.inputs.get(m.group(1), "")
+            return val.lower() == "true" or (bool(val) and val.lower() != "false")
+
         return True
 
     def _resolve_value(self, value: str) -> str:
@@ -223,4 +228,6 @@ class CISimulator:
             return self.workflow.env.get(value[4:], "")
         if value.startswith("secrets.") and len(value) > 8:
             return self.secrets.get(value[8:], "")
+        if value.startswith("inputs.") and len(value) > 7:
+            return self.inputs.get(value[7:], "")
         return value
