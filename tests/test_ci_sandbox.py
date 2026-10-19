@@ -324,6 +324,12 @@ class TestCycleDetection:
         assert sim.execution_order == [["a"], ["b"]]
         assert jobs["b"].status == "success"
 
+    def test_nonexistent_needs_raises_error(self):
+        wf = Workflow(name="test", jobs={"a": Job(name="a", needs=["nonexistent"])})
+        with pytest.raises(ValueError, match="Job 'a' needs 'nonexistent' which does not exist"):
+            CISimulator(wf).run()
+
+
 
 class TestMalformedWorkflows:
     """#75: malformed documents get a friendly ValueError, not an AttributeError."""

@@ -61,9 +61,12 @@ class CISimulator:
 
         for job_name, job in jobs.items():
             for need in job.needs:
-                if need in jobs:
-                    in_degree[job_name] += 1
-                    dependents[need].append(job_name)
+                if need not in jobs:
+                    raise ValueError(
+                        f"Job '{job_name}' needs '{need}' which does not exist"
+                    )
+                in_degree[job_name] += 1
+                dependents[need].append(job_name)
 
         ready = sorted([n for n, d in in_degree.items() if d == 0])
         groups: list[list[str]] = []
