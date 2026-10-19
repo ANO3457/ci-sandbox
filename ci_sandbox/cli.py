@@ -11,7 +11,7 @@ from ci_sandbox.models import Job, Workflow
 from ci_sandbox.parser import WorkflowParser
 from ci_sandbox.simulator import CISimulator
 
-__version__ = "0.1.0"
+from ci_sandbox import __version__
 
 
 def format_results(

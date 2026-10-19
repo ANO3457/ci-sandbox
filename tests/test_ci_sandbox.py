@@ -361,3 +361,13 @@ class TestMalformedWorkflows:
     def test_valid_workflow_still_parses(self, sample_workflow: Path):
         wf = WorkflowParser(sample_workflow).parse()
         assert len(wf.jobs) == 3
+
+
+class TestVersionConsistency:
+    def test_cli_version_matches_package_version(self):
+        import ci_sandbox
+        import ci_sandbox.cli
+
+        assert ci_sandbox.cli.__version__ == ci_sandbox.__version__
+        assert ci_sandbox.cli.__version__ is ci_sandbox.__version__
+
