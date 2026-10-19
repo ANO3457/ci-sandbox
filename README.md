@@ -1,6 +1,6 @@
 # CI Sandbox
 
-![ci](https://github.com/yunaremaia/ci-sandbox/actions/workflows/ci.yml/badge.svg) ![py](https://img.shields.io/badge/python-3.11-blue.svg) ![license](https://img.shields.io/github/license/yunaremaia/ci-sandbox) ![stars](https://img.shields.io/github/stars/yunaremaia/ci-sandbox)
+![ci](https://github.com/yunaremaia/ci-sandbox/actions/workflows/ci.yml/badge.svg) ![py](https://img.shields.io/badge/python-3.11-blue.svg) ![license](https://img.shields.io/github/license/yunaremaia/ci-sandbox) ![stars](https://img.shields.io/github/stars/yunaremaia/ci-sandbox) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 Simulador local de pipelines CI. Veja quais jobs rodam e quais são skipados — sem executar nada.
 
