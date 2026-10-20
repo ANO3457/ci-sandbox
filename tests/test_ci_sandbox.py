@@ -238,14 +238,16 @@ class TestExpressionEvaluation:
         # true || (false && false) -> True
         assert (
             sim._eval_expression(
-                "github.event_name == 'push' || github.ref_name == 'main' && github.event_name == 'release'"
+                "github.event_name == 'push' || github.ref_name == 'main' "
+                "&& github.event_name == 'release'"
             )
             is True
         )
         # (false && false) || false -> False
         assert (
             sim._eval_expression(
-                "github.event_name == 'release' && github.ref_name == 'main' || github.ref_name == 'prod'"
+                "github.event_name == 'release' && github.ref_name == 'main' "
+                "|| github.ref_name == 'prod'"
             )
             is False
         )
