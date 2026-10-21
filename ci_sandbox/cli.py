@@ -7,11 +7,10 @@ from pathlib import Path
 
 import click
 
+from ci_sandbox import __version__
 from ci_sandbox.models import Job, Workflow
 from ci_sandbox.parser import WorkflowParser
 from ci_sandbox.simulator import CISimulator
-
-from ci_sandbox import __version__
 
 
 def format_results(
