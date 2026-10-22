@@ -8,6 +8,7 @@ from pathlib import Path
 import click
 
 from ci_sandbox import __version__
+from ci_sandbox.matrix import expand_matrix
 from ci_sandbox.models import Job, Workflow
 from ci_sandbox.parser import WorkflowParser
 from ci_sandbox.simulator import CISimulator
@@ -37,6 +38,7 @@ def format_results(
         "pending": click.style("…", fg="bright_black"),
     }
 
+    combinations = {name: expand_matrix(job.strategy) for name, job in jobs.items()}
     for group_idx, group in enumerate(simulator.execution_order):
         if group_idx > 0:
             lines.append(click.style("  ↓", fg="bright_black"))
@@ -50,24 +52,26 @@ def format_results(
                 "pending": "bright_black",
             }.get(job.status, "white")
 
-            line = f"  {icon} {click.style(job_name, fg=color)}"
-            if job.status == "skipped" and job.skipped_because:
-                line += click.style(f" ({job.skipped_because})", fg="bright_black")
-            if job.runs_on:
-                line += click.style(f" [{job.runs_on}]", fg="bright_black")
-            lines.append(line)
+            for variables in combinations[job_name]:
+                label = job_name
+                if variables:
+                    label += " (" + ", ".join(f"{k}={v}" for k, v in variables.items()) + ")"
+                line = f"  {icon} {click.style(label, fg=color)}"
+                if job.status == "skipped" and job.skipped_because:
+                    line += click.style(f" ({job.skipped_because})", fg="bright_black")
+                if job.runs_on:
+                    line += click.style(f" [{job.runs_on}]", fg="bright_black")
+                lines.append(line)
 
-            if show_steps and job.steps:
-                for step in job.steps:
-                    step_name = step.name or step.uses or step.run[:50] or "(unnamed)"
-                    lines.append(
-                        click.style(f"      • {step_name}", fg="bright_black")
-                    )
+                if show_steps and job.steps:
+                    for step in job.steps:
+                        step_name = step.name or step.uses or step.run[:50] or "(unnamed)"
+                        lines.append(click.style(f"      • {step_name}", fg="bright_black"))
 
-    total = len(jobs)
-    ok = sum(1 for j in jobs.values() if j.status == "success")
-    fail = sum(1 for j in jobs.values() if j.status == "failure")
-    skip = sum(1 for j in jobs.values() if j.status == "skipped")
+    total = sum(len(rows) for rows in combinations.values())
+    ok = sum(len(combinations[n]) for n, j in jobs.items() if j.status == "success")
+    fail = sum(len(combinations[n]) for n, j in jobs.items() if j.status == "failure")
+    skip = sum(len(combinations[n]) for n, j in jobs.items() if j.status == "skipped")
 
     lines.append("")
     summary_parts = [f"{ok} success", f"{skip} skipped"]
@@ -137,10 +141,10 @@ def simulate(
 
     try:
         jobs = simulator.run()
+        output = format_results(workflow, jobs, simulator, show_steps=steps)
     except ValueError as e:
         click.echo(click.style(f"❌ Erro ao simular workflow: {e}", fg="red"))
         sys.exit(1)
-    output = format_results(workflow, jobs, simulator, show_steps=steps)
     click.echo(output)
 
 

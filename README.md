@@ -94,11 +94,44 @@ $ ci-sandbox simulate .github/workflows/ci.yml --event pull_request --branch fea
   ══ 1 success · 2 skipped (3 jobs) ══
 ```
 
+## Visualização de matrizes
+
+Cada combinação de uma matriz literal aparece em sua própria linha, com as variáveis:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20]
+        os: [ubuntu, windows]
+```
+
+```text
+  ✓ test (node=18, os=ubuntu) [ubuntu-latest]
+  ✓ test (node=18, os=windows) [ubuntu-latest]
+  ✓ test (node=20, os=ubuntu) [ubuntu-latest]
+  ✓ test (node=20, os=windows) [ubuntu-latest]
+```
+
+O resumo conta as combinações exibidas. `exclude` remove combinações correspondentes;
+`include` acrescenta variáveis sem sobrescrever os eixos originais ou adiciona uma nova
+combinação. Matrizes somente com `include` também são aceitas. O status e o motivo de
+skip do job são repetidos em cada combinação, inclusive quando o evento não dispara
+o workflow. As dependências continuam usando o identificador original (`needs: test`).
+
+Esta é uma visualização da simulação, não uma execução dos runners: não avalia steps
+ou expressões `matrix.*` por combinação, nem simula `fail-fast`/`max-parallel`.
+Matrizes dinâmicas (por exemplo, `fromJSON`) não são resolvidas; em vez de apresentar
+uma contagem fictícia, o comando termina com uma mensagem clara. A expansão está
+limitada a 256 combinações.
+
 ## Limitações
 
 - Não executa steps (só simula a lógica de skip/run)
 - Não suporta todos os functions do GitHub Actions (implementação parcial)
-- Não faz parse de `matrix` completo (suporte básico)
+- Matrizes dinâmicas e expressões por combinação não são avaliadas (veja acima)
 
 If this tool is useful to you, a star helps other people find it.
 
